@@ -45,7 +45,6 @@ const transactionStore = {
             .name,
         });
       });
-      console.log(total);
       context.commit("setTransactions", { listTransaction, total });
     },
 
@@ -63,7 +62,6 @@ const transactionStore = {
     },
 
     async createTransaction(_, data) {
-      console.log(data);
       await addDoc(collection(db, "transactions"), data);
     },
   },
