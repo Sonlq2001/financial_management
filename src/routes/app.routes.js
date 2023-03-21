@@ -50,7 +50,7 @@ const router = createRouter({
 
 // primary router
 router.beforeEach((to, from, next) => {
-  const authToken = storeAuth.state.token;
+  const authToken = storeAuth.state.auth?.token;
   if (to.meta?.isAuth) {
     if (authToken && to.path === "/login") {
       return next("/");

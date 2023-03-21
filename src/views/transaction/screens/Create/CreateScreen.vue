@@ -31,13 +31,13 @@
               ' px-2 py-1 text-sm rounded-3xl mr-3',
               `bg-${cate.color}-200`,
               `text-${cate.color}-500`,
-              cate.value === initTransaction.category &&
+              cate.id === initTransaction.category &&
                 `border-2 border-${cate.color}-500`,
             ]"
             type="button"
-            v-for="(cate, index) in CATEGORY_TRANSACTION"
+            v-for="(cate, index) in categories"
             :key="index"
-            @click="handleSetCategory(cate.value)"
+            @click="handleSetCategory(cate.id)"
           >
             {{ cate.name }}
           </button>
@@ -60,7 +60,7 @@
           type="number"
           placeholder="0 đ"
           class="border px-4 py-3 rounded w-full"
-          v-model="initTransaction.totalBill"
+          v-model="initTransaction.total_bill"
         />
       </div>
 
@@ -118,22 +118,34 @@
   </div>
 </template>
 <script>
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
+import { useStorage } from "@/hooks/useUploadFile";
 import { CATEGORY_TRANSACTION } from "../../constants/transaction.constants";
 
 export default {
   setup() {
+    const store = useStore();
     const initTransaction = ref({
       name: "",
-      category: 1,
+      category: "",
       date: "",
+      year: "",
+      month: "",
       time: "",
-      totalBill: "",
-      descriptionPhoto: "",
+      total_bill: "",
+      description_photo: "",
       note: "",
     });
     const previewImage = ref(null);
+    const router = useRouter();
+    const { uploadFile, url } = useStorage("transactions");
+
+    onMounted(async () => {
+      await store.dispatch("transaction/getCategories");
+    });
 
     const handleSetCategory = (value) => {
       initTransaction.value = { ...initTransaction.value, category: value };
@@ -143,7 +155,7 @@ export default {
       try {
         initTransaction.value = {
           ...initTransaction.value,
-          descriptionPhoto: e.target.files[0],
+          description_photo: e.target.files[0],
         };
         previewImage.value = URL.createObjectURL(e.target.files[0]);
       } catch (error) {
@@ -151,9 +163,20 @@ export default {
       }
     };
 
-    const handleSubmitForm = () => {
-      // submit create transaction
-      console.log(initTransaction.value);
+    const handleSubmitForm = async () => {
+      try {
+        await uploadFile(initTransaction.value.description_photo);
+        const data = {
+          ...initTransaction.value,
+          year: String(new Date(initTransaction.value.date).getFullYear()),
+          month: String(new Date(initTransaction.value.date).getMonth() + 1),
+          description_photo: url.value,
+        };
+        await store.dispatch("transaction/createTransaction", data);
+        router.push({ name: "Dashboard" });
+      } catch (error) {
+        //
+      }
     };
 
     return {
@@ -163,6 +186,12 @@ export default {
       handleSetCategory,
       handleImage,
       previewImage,
+      categories: computed(() => {
+        return store.state.transaction?.categories?.map((item, index) => ({
+          ...item,
+          color: CATEGORY_TRANSACTION[index].color,
+        }));
+      }),
     };
   },
 };

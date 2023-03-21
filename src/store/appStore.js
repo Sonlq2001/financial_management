@@ -7,7 +7,7 @@ import transactionStore from "./transactionStore";
 const vuexLocalStorage = new VuexPersist({
   key: "vuex",
   storage: window.localStorage,
-  reducer: (state) => ({ token: state.auth.token }),
+  modules: ["auth"],
 });
 
 const storeAuth = createStore({
