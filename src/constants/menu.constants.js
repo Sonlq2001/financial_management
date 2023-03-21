@@ -25,3 +25,16 @@ export const MenuSidebar = [
     icon: "ri-history-line",
   },
 ];
+
+export const MenuSidebarFooter = [
+  {
+    title: "Cài đặt",
+    navigator: "Dashboard",
+    icon: "ri-settings-5-line",
+  },
+  {
+    title: "Đăng xuất",
+    navigator: "",
+    icon: "ri-logout-circle-r-line",
+  },
+];

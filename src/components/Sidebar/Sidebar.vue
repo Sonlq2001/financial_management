@@ -33,32 +33,44 @@
       <div class="w-full h-[1px] bg-blue-100 my-5"></div>
       <div class="pb-3">
         <router-link
-          to=""
+          :to="{ name: menu.navigator }"
           class="flex items-center w-full cursor-pointer p-2 hover:bg-gray-100 text-primary rounded-lg"
+          v-for="(menu, index) in MenuSidebarFooter"
+          :key="index"
+          @click="
+            index === MenuSidebarFooter.length - 1 ? handleLogout($event) : null
+          "
         >
           <i
-            class="ri-settings-5-line text-2xl mr-4 bg-white shadow-xl rounded w-[36px] h-[36px] text-center leading-9"
+            :class="[
+              `${menu.icon}`,
+              'text-2xl mr-4 bg-white shadow-xl rounded w-[36px] h-[36px] text-center leading-9',
+            ]"
           />
-          <span class="text-lg text-gray-700 font-medium">Cài đặt</span>
+          <span class="text-lg text-gray-700 font-medium">
+            {{ menu.title }}
+          </span>
         </router-link>
-        <button
-          type="button"
-          class="flex items-center w-full cursor-pointer p-2 hover:bg-gray-100 text-primary rounded-lg"
-        >
-          <i
-            class="ri-logout-circle-r-line text-2xl mr-4 bg-white shadow-xl rounded w-[36px] h-[36px] text-center leading-9"
-          />
-          <span class="text-lg text-gray-700 font-medium">Cài đặt</span>
-        </button>
       </div>
     </nav>
   </aside>
 </template>
 <script>
-import { MenuSidebar } from "@/constants/menu.constants";
+import { useStore } from "vuex";
+
+import { MenuSidebar, MenuSidebarFooter } from "@/constants/menu.constants";
+
 export default {
   setup() {
-    return { MenuSidebar };
+    const store = useStore();
+
+    const handleLogout = async (e) => {
+      e.preventDefault();
+      await store.dispatch("auth/logout");
+      window.location.reload();
+    };
+
+    return { MenuSidebar, MenuSidebarFooter, handleLogout };
   },
 };
 </script>
