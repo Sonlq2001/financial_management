@@ -7,7 +7,9 @@
       <div class="w-[370px] mx-auto">
         <form action="" class="w-full" @submit.prevent="handleSubmitForm">
           <h1 class="text-3xl mb-3">Chào mừng trở lại!</h1>
-          <h4 class="mb-6 text-gray-400">Bắt đầu quản lý tài chính của bạn.</h4>
+          <h4 class="mb-6 text-gray-400">
+            Bắt đầu quản lý tài chính của mình.
+          </h4>
           <div class="mb-4">
             <label for="" class="block mb-1">Email</label>
             <input
