@@ -3,6 +3,7 @@ import VuexPersist from "vuex-persist";
 
 import authStore from "./authStore";
 import transactionStore from "./transactionStore";
+import categoryStore from "./categoryStore";
 
 const vuexLocalStorage = new VuexPersist({
   key: "vuex",
@@ -14,6 +15,7 @@ const storeAuth = createStore({
   modules: {
     auth: authStore,
     transaction: transactionStore,
+    category: categoryStore,
   },
   plugins: [vuexLocalStorage.plugin],
 });

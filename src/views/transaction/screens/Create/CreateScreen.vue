@@ -29,10 +29,9 @@
           <button
             :class="[
               ' px-2 py-1 text-sm rounded-3xl mr-3',
-              `bg-${cate.color}-200`,
-              `text-${cate.color}-500`,
-              cate.id === initTransaction.category &&
-                `border-2 border-${cate.color}-500`,
+              `bg-green-100`,
+              `text-green-500`,
+              cate.id === initTransaction.category && `border-2 border-primary`,
             ]"
             type="button"
             v-for="(cate, index) in categories"
@@ -123,7 +122,6 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 import { useStorage } from "@/hooks/useUploadFile";
-import { CATEGORY_TRANSACTION } from "../../constants/transaction.constants";
 
 export default {
   setup() {
@@ -182,16 +180,10 @@ export default {
     return {
       initTransaction,
       handleSubmitForm,
-      CATEGORY_TRANSACTION,
       handleSetCategory,
       handleImage,
       previewImage,
-      categories: computed(() => {
-        return store.state.transaction?.categories?.map((item, index) => ({
-          ...item,
-          color: CATEGORY_TRANSACTION[index].color,
-        }));
-      }),
+      categories: computed(() => store.state.transaction?.categories),
     };
   },
 };

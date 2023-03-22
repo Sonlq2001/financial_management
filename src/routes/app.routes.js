@@ -41,6 +41,11 @@ const routes = [
     },
     component: () => import("@/views/NotFound/NotFound"),
   },
+  {
+    path: "/category",
+    name: "Category",
+    component: () => import("@/views/category/screens/CategoryScreen.vue"),
+  },
 ];
 
 const router = createRouter({
