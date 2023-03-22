@@ -10,6 +10,10 @@ const transactionStore = {
         totalMoney: 0,
       },
       categories: null,
+      syntheticTransactions: {
+        totalYear: 0,
+        list: null,
+      },
     };
   },
   getters: {},
@@ -20,6 +24,9 @@ const transactionStore = {
     },
     setCategories(state, payload) {
       state.categories = payload;
+    },
+    setSyntheticTransactions(state, payload) {
+      state.syntheticTransactions = payload;
     },
   },
   actions: {
@@ -63,6 +70,46 @@ const transactionStore = {
 
     async createTransaction(_, data) {
       await addDoc(collection(db, "transactions"), data);
+    },
+
+    async getSyntheticTransactions(context, year) {
+      let listTransaction = [];
+      const colRef = collection(db, "transactions");
+      const q = query(colRef, where("year", "==", String(year)));
+
+      const querySnapshot = await getDocs(q);
+
+      let months = [];
+      for (let i = 1; i <= 12; i++) {
+        months.push(i);
+      }
+
+      querySnapshot.forEach((doc) => {
+        listTransaction.push({
+          ...doc.data(),
+          id: doc.id,
+        });
+      });
+
+      const collapseData = listTransaction.map((item) => ({
+        month: months[Number(item.month) - 1],
+        total: Number(item.total_bill) || 0,
+      }));
+
+      const res = Array.from(
+        collapseData.reduce(
+          (m, { month, total }) => m.set(month, (m.get(month) || 0) + total),
+          new Map()
+        ),
+        ([month, total]) => ({ month, total })
+      );
+
+      const totalYear = res.reduce(
+        (totalCount, bill) => (totalCount += Number(bill.total)),
+        0
+      );
+
+      context.commit("setSyntheticTransactions", { list: res, totalYear });
     },
   },
 };
