@@ -11,7 +11,7 @@ export const MenuSidebar = [
   },
   {
     title: "Danh mục",
-    navigator: "Dashboard",
+    navigator: "Category",
     icon: "ri-booklet-line",
   },
   {
