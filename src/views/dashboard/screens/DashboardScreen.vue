@@ -19,9 +19,13 @@
           Giao dịch tháng {{ new Date().getMonth() + 1 }} -
           {{ new Date().getFullYear() }}
         </h2>
-        <div>
+        <div class="flex items-center">
           <span class="text-sm font-medium mr-2">Tổng chi:</span>
-          <span> {{ currency(totalMoney) }} / 2.000.000 đ </span>
+          <div class="flex items-center">
+            <span>{{ currency(totalMoney) }}</span>
+            <span class="mx-1">/</span>
+            <span class="text-red-600">2.000.000 đ</span>
+          </div>
         </div>
       </div>
 
