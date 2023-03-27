@@ -1,6 +1,6 @@
 <template lang="">
   <div
-    class="mt-3 bg-white py-4 px-5 rounded flex items-center justify-between"
+    class="mt-3 bg-white dark:bg-dark2 dark:text-textDark py-4 px-5 rounded flex items-center justify-between"
   >
     <h2 class="text-xl font-semibold">Dashboard</h2>
     <div class="flex items-center">

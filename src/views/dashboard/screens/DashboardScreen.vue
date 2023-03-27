@@ -6,14 +6,37 @@
         alt=""
         class="w-[40px]"
       />
-      <p class="text-2xl ml-3 font-semibold">Hey Son !</p>
+      <p class="text-2xl ml-3 font-semibold dark:text-textDark">Hey Son !</p>
     </div>
     <p class="mt-2 text-gray-500">Cập nhập chi tiêu tháng này của bạn nhé.</p>
 
+    <div class="bg-white rounded p-4 mt-10 dark:bg-dark2 dark:text-textDark">
+      <div class="flex items-center mb-5">
+        <img
+          :src="require('../../../assets/images/event.png')"
+          alt=""
+          class="w-[30px] mr-3"
+        />
+        Hôm nay:
+        <span class="ml-3 font-semibold">{{ currency(totalMoneyToday) }}</span>
+      </div>
+      <div class="flex items-center">
+        <img
+          :src="require('../../../assets/images/yesterday.png')"
+          alt=""
+          class="w-[30px] mr-3"
+        />
+        Hôm qua:
+        <span class="ml-3 font-semibold">{{
+          currency(totalMoneyYesterday)
+        }}</span>
+      </div>
+    </div>
+
     <!-- table -->
-    <div class="bg-white rounded p-5 mt-10">
+    <div class="bg-white rounded p-5 mt-5 dark:bg-dark2 dark:text-textDark">
       <div
-        class="flex items-center border-b pb-4 text-lg font-semibold justify-between"
+        class="flex items-center border-b pb-4 text-lg font-semibold justify-between dark:border-slate-700"
       >
         <h2 class="">
           Giao dịch tháng {{ new Date().getMonth() + 1 }} -
@@ -22,7 +45,7 @@
         <div class="flex items-center">
           <span class="text-sm font-medium mr-2">Tổng chi:</span>
           <div class="flex items-center">
-            <span>{{ currency(totalMoney) }}</span>
+            <span>{{ currency(totalOfMonthMoney) }}</span>
             <span class="mx-1">/</span>
             <span class="text-red-600">2.000.000 đ</span>
           </div>
@@ -73,7 +96,7 @@
         </div>
       </div>
       <table class="w-full" v-else>
-        <thead class="border-b">
+        <thead class="border-b dark:border-slate-700">
           <tr>
             <th class="p-3 text-left">ID</th>
             <th class="p-3 text-left">Tên</th>
@@ -87,7 +110,7 @@
 
         <tbody class="text-gray-500">
           <tr
-            class="border-b"
+            class="border-b dark:border-slate-700"
             v-for="transaction in transactionList"
             :key="transaction.id"
           >
@@ -140,8 +163,12 @@ export default {
       transactionList: computed(
         () => store.state.transaction.transactions.list
       ),
-      totalMoney: computed(
+      totalOfMonthMoney: computed(
         () => store.state.transaction.transactions.totalMoney
+      ),
+      totalMoneyToday: computed(() => store.state.transaction.totalMoneyToday),
+      totalMoneyYesterday: computed(
+        () => store.state.transaction.totalMoneyYesterday
       ),
       loading,
       currency,

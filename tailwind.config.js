@@ -6,8 +6,13 @@ module.exports = {
     extend: {
       colors: {
         primary: "#76BA99",
+        dark1: "#0f172a",
+        dark2: "#1e293b",
+        dark3: "#303c51",
+        textDark: "#94a3b8",
       },
     },
   },
+  darkMode: "class",
   plugins: [],
 };

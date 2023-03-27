@@ -17,6 +17,7 @@
               placeholder="Email"
               class="border border-gray-400 rounded p-3 w-full"
               v-model="initFormAuth.email"
+              autocomplete="username"
             />
           </div>
           <div class="mb-10">
@@ -27,6 +28,7 @@
                 placeholder="Mật khẩu"
                 class="border border-gray-400 rounded py-3 pl-3 pr-11 w-full"
                 v-model="initFormAuth.password"
+                autocomplete="current-password"
               />
               <span @click="toggleShowPassword">
                 <i
