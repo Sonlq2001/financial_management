@@ -4,11 +4,18 @@ import VuexPersist from "vuex-persist";
 import authStore from "./authStore";
 import transactionStore from "./transactionStore";
 import categoryStore from "./categoryStore";
+import settingStore from "./settingStore";
 
 const vuexLocalStorage = new VuexPersist({
-  key: "vuex",
+  key: "auth",
   storage: window.localStorage,
   modules: ["auth"],
+});
+
+const vuexLocalStorageTheme = new VuexPersist({
+  key: "theme",
+  storage: window.localStorage,
+  modules: ["settings"],
 });
 
 const storeAuth = createStore({
@@ -16,8 +23,9 @@ const storeAuth = createStore({
     auth: authStore,
     transaction: transactionStore,
     category: categoryStore,
+    settings: settingStore,
   },
-  plugins: [vuexLocalStorage.plugin],
+  plugins: [vuexLocalStorage.plugin, vuexLocalStorageTheme.plugin],
 });
 
 export default storeAuth;

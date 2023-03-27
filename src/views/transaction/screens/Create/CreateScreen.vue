@@ -1,5 +1,7 @@
 <template lang="">
-  <div class="mt-5 bg-white rounded p-4 flex w-fit">
+  <div
+    class="mt-5 bg-white rounded p-4 flex w-fit dark:bg-dark2 dark:text-textDark"
+  >
     <img
       :src="require('../../../../assets/images/pig.png')"
       alt=""
@@ -10,7 +12,9 @@
       <p class="text-lg font-semibold text-pink-400">4.000.000 đ</p>
     </div>
   </div>
-  <div class="mt-10 max-w-3xl mx-auto bg-white rounded py-5 px-10">
+  <div
+    class="mt-10 max-w-3xl mx-auto bg-white rounded py-5 px-10 dark:bg-dark2 dark:text-textDark"
+  >
     <h2 class="text-lg font-semibold">Tạo giao dịch</h2>
     <form action="" class="mt-4" @submit.prevent="handleSubmitForm">
       <div class="mb-5">
@@ -18,7 +22,7 @@
         <input
           type="text"
           placeholder="Vd: Mua đồ ăn sáng"
-          class="border px-4 py-3 rounded w-full"
+          class="border px-4 py-3 rounded w-full dark:bg-dark3"
           v-model="initTransaction.name"
         />
       </div>
@@ -45,21 +49,36 @@
 
       <div class="mb-5">
         <label for="" class="block mb-2">Thời gian</label>
-        <div class="border rounded inline-block p-2 mr-5">
-          <input type="date" class="text-lg" v-model="initTransaction.date" />
+        <div class="border rounded inline-block mr-5">
+          <input
+            type="date"
+            class="text-lg dark:bg-dark3 p-2"
+            v-model="initTransaction.date"
+          />
         </div>
-        <div class="border rounded inline-block p-2">
-          <input type="time" class="text-lg" v-model="initTransaction.time" />
+        <div class="border rounded inline-block">
+          <input
+            type="time"
+            class="text-lg dark:bg-dark3 p-2"
+            v-model="initTransaction.time"
+          />
         </div>
       </div>
 
       <div class="mb-5">
         <label for="" class="block mb-2">Tổng</label>
-        <input
-          type="number"
-          placeholder="0 đ"
-          class="border px-4 py-3 rounded w-full"
-          v-model="initTransaction.total_bill"
+        <vue-number-format
+          v-model:value="initTransaction.total_bill"
+          :options="{
+            precision: '',
+            prefix: '',
+            suffix: ' đ',
+            decimal: '',
+            thousand: ',',
+            acceptNegative: false,
+            isInteger: false,
+          }"
+          class="border px-4 py-3 rounded w-full dark:bg-dark3"
         />
       </div>
 
@@ -68,7 +87,7 @@
           <label for="" class="block mb-2">Ảnh mô tả (nếu có)</label>
           <label
             for="file"
-            class="border rounded p-4 flex flex-col items-center h-[146px] justify-center"
+            class="border rounded p-4 flex flex-col items-center h-[146px] justify-center dark:bg-dark3"
           >
             <img
               :src="previewImage"
@@ -95,7 +114,7 @@
             id=""
             cols="10"
             rows="5"
-            class="w-full border rounded resize-none p-3"
+            class="w-full border rounded resize-none p-3 dark:bg-dark3"
             placeholder="Vd: Mua đồ ăn sáng"
             v-model="initTransaction.note"
           />
@@ -136,13 +155,14 @@ export default {
       total_bill: "",
       description_photo: "",
       note: "",
+      createdAt: new Date().getTime(),
     });
     const previewImage = ref(null);
     const router = useRouter();
     const { uploadFile, url } = useStorage("transactions");
 
     onMounted(async () => {
-      await store.dispatch("transaction/getCategories");
+      await store.dispatch("category/getCategories");
     });
 
     const handleSetCategory = (value) => {
@@ -183,7 +203,7 @@ export default {
       handleSetCategory,
       handleImage,
       previewImage,
-      categories: computed(() => store.state.transaction?.categories),
+      categories: computed(() => store.state.category?.categories),
     };
   },
 };

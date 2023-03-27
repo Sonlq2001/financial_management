@@ -29,7 +29,7 @@ export const MenuSidebar = [
 export const MenuSidebarFooter = [
   {
     title: "Cài đặt",
-    navigator: "Dashboard",
+    navigator: "Settings",
     icon: "ri-settings-5-line",
   },
   {

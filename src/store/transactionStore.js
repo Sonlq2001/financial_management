@@ -1,5 +1,32 @@
-import { collection, getDocs, where, query, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  where,
+  query,
+  addDoc,
+  orderBy,
+} from "firebase/firestore";
+
 import { db } from "../configs/firebase";
+import { limitForTheDay } from "@/utils/date";
+
+const { start, end } = limitForTheDay();
+const { start: startedYesterday, end: endYesterday } = limitForTheDay();
+
+// get start and end of yesterday
+startedYesterday.setDate(startedYesterday.getDate() - 1);
+endYesterday.setDate(endYesterday.getDate() - 1);
+
+// startDate and endDate taken from getTime() of new Date()
+const getTotalMoneyDay = (data, startDate, endDate) => {
+  const totalMoneyDay = data
+    .filter((item) => {
+      const dateTransaction = new Date(`${item.date} ${item.time}`).getTime();
+      return dateTransaction >= startDate && dateTransaction <= endDate;
+    })
+    .reduce((total, bill) => (total += bill.total_bill), 0);
+  return totalMoneyDay;
+};
 
 const transactionStore = {
   namespaced: true,
@@ -9,11 +36,12 @@ const transactionStore = {
         list: null,
         totalMoney: 0,
       },
-      categories: null,
       syntheticTransactions: {
         totalYear: 0,
         list: null,
       },
+      totalMoneyToday: 0,
+      totalMoneyYesterday: 0,
     };
   },
   getters: {},
@@ -22,11 +50,14 @@ const transactionStore = {
       state.transactions.list = payload.listTransaction;
       state.transactions.totalMoney = payload.total;
     },
-    setCategories(state, payload) {
-      state.categories = payload;
-    },
     setSyntheticTransactions(state, payload) {
       state.syntheticTransactions = payload;
+    },
+    setTotalMoneyToday(state, payload) {
+      state.totalMoneyToday = payload;
+    },
+    setTotalMoneyYesterday(state, payload) {
+      state.totalMoneyYesterday = payload;
     },
   },
   actions: {
@@ -37,7 +68,8 @@ const transactionStore = {
       const q = query(
         colRef,
         where("month", "==", String(month)),
-        where("year", "==", String(year))
+        where("year", "==", String(year)),
+        orderBy("createdAt", "desc")
       );
 
       const querySnapshot = await getDocs(q);
@@ -49,13 +81,27 @@ const transactionStore = {
           ...doc.data(),
           id: doc.id,
           category: categories.find((cate) => cate.id == doc.data().category)
-            .name,
+            ?.name,
         });
       });
+
+      const totalMoneyToday = getTotalMoneyDay(
+        listTransaction,
+        start.getTime(),
+        end.getTime()
+      );
+      const totalMoneyYesterday = getTotalMoneyDay(
+        listTransaction,
+        startedYesterday.getTime(),
+        endYesterday.getTime()
+      );
+
       context.commit("setTransactions", { listTransaction, total });
+      context.commit("setTotalMoneyToday", totalMoneyToday);
+      context.commit("setTotalMoneyYesterday", totalMoneyYesterday);
     },
 
-    async getCategories(context) {
+    async getCategories() {
       let listCate = [];
       const res = await getDocs(collection(db, "categories"));
       res.forEach((doc) => {
@@ -64,7 +110,7 @@ const transactionStore = {
           id: doc.id,
         });
       });
-      context.commit("setCategories", listCate);
+
       return listCate;
     },
 

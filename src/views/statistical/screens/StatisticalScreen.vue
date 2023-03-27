@@ -1,6 +1,8 @@
 <template lang="">
   <div class="mt-5">
-    <div class="rounded bg-white mb-10 flex w-fit p-4">
+    <div
+      class="rounded bg-white mb-10 flex w-fit p-4 dark:bg-dark2 dark:text-textDark"
+    >
       <img
         :src="require('../../../assets/images/data-analysis.png')"
         alt=""
@@ -11,10 +13,12 @@
         <p class="text-lg font-semibold text-pink-400">Năm tháng</p>
       </div>
     </div>
-    <div class="max-w-3xl mx-auto bg-white rounded">
-      <div class="" v-for="(item, index) in year" :key="index">
+    <div
+      class="max-w-3xl mx-auto bg-white rounded dark:bg-dark2 dark:text-textDark"
+    >
+      <div v-for="(item, index) in year" :key="index">
         <div
-          class="flex items-center p-3 justify-between cursor-pointer border-b border-t"
+          class="flex items-center p-3 justify-between cursor-pointer border-b border-t dark:border-slate-700"
           @click="toggleAccordion(item)"
         >
           <span>{{ item.year }}</span>
@@ -61,7 +65,9 @@
                 }}</span>
               </div>
             </div>
-            <div class="flex items-center justify-end border-t py-3">
+            <div
+              class="flex items-center justify-end border-t py-3 dark:border-slate-700"
+            >
               <span class="mr-3">Cả năm:</span>
               <span class="font-semibold text-red-600 text-lg">
                 {{ currency(totalYear) }}
