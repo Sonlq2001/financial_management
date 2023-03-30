@@ -191,13 +191,14 @@ export default {
     const loading = ref(true);
     const currentPage = ref(1);
 
+    const currentMonth = new Date().getMonth() + 1;
     onMounted(async () => {
       Promise.all([
         store.dispatch("transaction/getTransactions", {
-          month: new Date().getMonth() + 1,
+          month: currentMonth,
         }),
         store.dispatch("transaction/getTotalBill", {
-          month: new Date().getMonth() + 1,
+          month: currentMonth,
         }),
       ]).finally(() => (loading.value = false));
     });
@@ -209,7 +210,7 @@ export default {
 
     const paginationData = async (page) => {
       await store.dispatch("transaction/getTransactions", {
-        month: new Date().getMonth() + 1,
+        month: currentMonth,
         page,
       });
     };
