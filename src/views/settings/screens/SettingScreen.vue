@@ -88,6 +88,8 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 
+import { useMode } from "@/hooks/useMode";
+
 export default {
   setup() {
     const store = useStore();
@@ -100,8 +102,9 @@ export default {
         .finally(() => (loading.value = false));
     });
 
-    const handleSubmitSettings = () => {
-      store.dispatch("settings/updateSettings", listSettings.value);
+    const handleSubmitSettings = async () => {
+      await store.dispatch("settings/updateSettings", listSettings.value);
+      useMode();
     };
 
     return {

@@ -9,7 +9,9 @@
     />
     <div>
       <p class="text-sm">Quy định/tháng</p>
-      <p class="text-lg font-semibold text-pink-400">4.000.000 đ</p>
+      <p class="text-lg font-semibold text-pink-400">
+        {{ currency(totalMoneyLimit) }}
+      </p>
     </div>
   </div>
   <div
@@ -32,10 +34,10 @@
         <div class="flex">
           <button
             :class="[
-              ' px-2 py-1 text-sm rounded-3xl mr-3',
-              `bg-green-100`,
-              `text-green-500`,
-              cate.id === initTransaction.category && `border-2 border-primary`,
+              'px-2 py-1 text-sm rounded-3xl mr-3 border',
+              'border-primary',
+              cate.id === initTransaction.category &&
+                `bg-gray-500 text-gray-200`,
             ]"
             type="button"
             v-for="(cate, index) in categories"
@@ -141,6 +143,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 import { useStorage } from "@/hooks/useUploadFile";
+import { currency } from "@/utils/convert";
 
 export default {
   setup() {
@@ -203,7 +206,11 @@ export default {
       handleSetCategory,
       handleImage,
       previewImage,
+      currency,
       categories: computed(() => store.state.category?.categories),
+      totalMoneyLimit: computed(
+        () => store.state.settings.listSettings.regulated_money
+      ),
     };
   },
 };

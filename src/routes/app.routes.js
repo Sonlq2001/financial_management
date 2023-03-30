@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import storeAuth from "@/store/appStore";
-
+import { useMode } from "@/hooks/useMode";
 const routes = [
   {
     path: "/",
@@ -61,6 +61,8 @@ const router = createRouter({
 // primary router
 router.beforeEach((to, from, next) => {
   const authToken = storeAuth.state.auth?.token;
+  useMode();
+
   if (to.meta?.isAuth) {
     if (authToken && to.path === "/login") {
       return next("/");

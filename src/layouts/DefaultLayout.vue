@@ -2,7 +2,7 @@
   <div class="flex">
     <sidebar />
     <div class="ml-[270px] bg-gray-100 w-full min-h-screen dark:bg-dark1">
-      <div class="mx-6 mb-5">
+      <div class="mx-6 mb-12">
         <navbar />
         <slot />
       </div>
@@ -10,7 +10,7 @@
 
     <router-link
       :to="{ name: 'Transaction create' }"
-      class="fixed bottom-5 right-5 bg-white dark:bg-dark2 shadow-md w-[50px] h-[50px] flex justify-center items-center rounded-full"
+      class="fixed bottom-5 right-5 bg-white dark:bg-dark2 shadow-md w-[50px] h-[50px] flex justify-center items-center rounded-full dark:border"
     >
       <i class="ri-add-line text-3xl text-primary"></i>
     </router-link>
