@@ -38,7 +38,7 @@
           </h2>
           <div class="flex items-center">
             <span class="text-sm font-medium mr-2">Tổng chi:</span>
-            <span class="text-red-600 text-lg font-semibold">{{
+            <span class="text-pink-400 text-lg font-semibold">{{
               currency(totalMoney)
             }}</span>
           </div>
@@ -130,6 +130,42 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- pagination -->
+        <div class="mt-5 flex items-center justify-end" v-if="totalAllData > 1">
+          <button
+            :class="[
+              ' text-white rounded w-[35px] h-[35px] ml-3 border',
+              currentPage === 1 && 'bg-gray-100',
+            ]"
+            @click="paginationData((currentPage -= 1))"
+            :disabled="currentPage === 1"
+          >
+            <i class="ri-arrow-left-s-line text-gray-500" />
+          </button>
+          <button
+            :class="[
+              'bg-gray-500 text-white rounded w-[35px] h-[35px] ml-3',
+              currentPage === page && 'bg-primary',
+            ]"
+            @click="handleNextPage(page)"
+            v-for="page in totalAllData"
+            :key="page"
+            :disabled="currentPage === page"
+          >
+            {{ page }}
+          </button>
+          <button
+            :class="[
+              ' text-white rounded w-[35px] h-[35px] ml-3 border',
+              currentPage === totalAllData && 'bg-gray-100',
+            ]"
+            @click="paginationData((currentPage += 1))"
+            :disabled="currentPage === totalAllData"
+          >
+            <i class="ri-arrow-right-s-line text-lg text-gray-500" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -140,21 +176,42 @@ import { useStore } from "vuex";
 
 import { currency } from "@/utils/convert";
 import { getDaysInMonth } from "@/utils/date";
+import { DEFAULT_PER_PAGE } from "@/constants/app.constants";
 
 export default {
   setup() {
     const loading = ref(true);
+    const currentPage = ref(1);
     const store = useStore();
+
     onMounted(async () => {
-      await store
-        .dispatch("transaction/getTransactions", new Date().getMonth())
-        .finally(() => (loading.value = false));
+      Promise.all([
+        (store.dispatch("transaction/getTransactions", {
+          month: new Date().getMonth(),
+        }),
+        store.dispatch("transaction/getTotalBill", {
+          month: new Date().getMonth(),
+        })),
+      ]).finally(() => (loading.value = false));
     });
 
     const totalMoney = computed(
-      () => store.state.transaction.transactions.totalMoney
+      () => store.state.transaction.totalBill.totalMoneyOfMonth
     );
 
+    const paginationData = async (page) => {
+      await store.dispatch("transaction/getTransactions", {
+        month: new Date().getMonth() + 1,
+        page,
+      });
+    };
+
+    const handleNextPage = async (page) => {
+      currentPage.value = page;
+      paginationData(page);
+    };
+
+    // handle averaged
     const averagedOfDay = computed(() => {
       const date = new Date();
       const daysInMonth = getDaysInMonth(date.getFullYear(), date.getMonth());
@@ -164,12 +221,19 @@ export default {
 
     return {
       transactionList: computed(
-        () => store.state.transaction.transactions.list
+        () => store.state.transaction.listTransactions.list
       ),
       averagedOfDay,
       totalMoney,
       loading,
       currency,
+      currentPage,
+      totalAllData: computed(() => {
+        const total = store.state.transaction.listTransactions.total;
+        const totalPage = Math.ceil(total / DEFAULT_PER_PAGE);
+        return totalPage;
+      }),
+      handleNextPage,
     };
   },
 };

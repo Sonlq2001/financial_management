@@ -5,10 +5,14 @@ import {
   query,
   addDoc,
   orderBy,
+  getCountFromServer,
+  limit,
+  startAt,
 } from "firebase/firestore";
 
 import { db } from "../configs/firebase";
 import { limitForTheDay } from "@/utils/date";
+import { DEFAULT_PER_PAGE } from "@/constants/app.constants";
 
 const { start, end } = limitForTheDay();
 const { start: startedYesterday, end: endYesterday } = limitForTheDay();
@@ -32,56 +36,51 @@ const transactionStore = {
   namespaced: true,
   state() {
     return {
-      transactions: {
+      listTransactions: {
         list: null,
-        totalMoney: 0,
+        total: 0,
       },
       syntheticTransactions: {
         totalYear: 0,
         list: null,
       },
-      totalMoneyToday: 0,
-      totalMoneyYesterday: 0,
+      totalBill: {
+        totalMoneyOfMonth: 0,
+        totalMoneyToday: 0,
+        totalMoneyYesterday: 0,
+      },
     };
   },
   getters: {},
   mutations: {
     setTransactions(state, payload) {
-      state.transactions.list = payload.listTransaction;
-      state.transactions.totalMoney = payload.total;
+      state.listTransactions = payload;
+    },
+    setTotalBill(state, payload) {
+      state.totalBill = payload;
     },
     setSyntheticTransactions(state, payload) {
       state.syntheticTransactions = payload;
     },
-    setTotalMoneyToday(state, payload) {
-      state.totalMoneyToday = payload;
-    },
-    setTotalMoneyYesterday(state, payload) {
-      state.totalMoneyYesterday = payload;
-    },
   },
   actions: {
-    async getTransactions(context, month, year = new Date().getFullYear()) {
+    async getTotalBill(context, { month, year = new Date().getFullYear() }) {
       let listTransaction = [];
-      let total = 0;
+      let totalMoneyOfMonth = 0;
       const colRef = collection(db, "transactions");
       const q = query(
         colRef,
         where("month", "==", String(month)),
-        where("year", "==", String(year)),
-        orderBy("createdAt", "desc")
+        where("year", "==", String(year))
       );
 
       const querySnapshot = await getDocs(q);
 
-      const categories = await context.dispatch("getCategories");
       querySnapshot.forEach((doc) => {
-        total += Number(doc.data().total_bill);
+        totalMoneyOfMonth += Number(doc.data().total_bill);
         listTransaction.push({
           ...doc.data(),
           id: doc.id,
-          category: categories.find((cate) => cate.id == doc.data().category)
-            ?.name,
         });
       });
 
@@ -96,9 +95,11 @@ const transactionStore = {
         endYesterday.getTime()
       );
 
-      context.commit("setTransactions", { listTransaction, total });
-      context.commit("setTotalMoneyToday", totalMoneyToday);
-      context.commit("setTotalMoneyYesterday", totalMoneyYesterday);
+      context.commit("setTotalBill", {
+        totalMoneyOfMonth,
+        totalMoneyToday,
+        totalMoneyYesterday,
+      });
     },
 
     async getCategories() {
@@ -156,6 +157,53 @@ const transactionStore = {
       );
 
       context.commit("setSyntheticTransactions", { list: res, totalYear });
+    },
+
+    async getTransactions(
+      context,
+      { month, year = new Date().getFullYear(), page = 1 }
+    ) {
+      let listTransactions = [];
+      const colRef = collection(db, "transactions");
+      const q = query(
+        colRef,
+        where("month", "==", String(month)),
+        where("year", "==", String(year)),
+        orderBy("createdAt", "desc")
+      );
+      const [querySnapshot, snapshot, categories] = await Promise.all([
+        getDocs(q),
+        getCountFromServer(q),
+        context.dispatch("getCategories"),
+      ]);
+
+      const firstVisible =
+        querySnapshot.docs[DEFAULT_PER_PAGE * (page - 1)] || null;
+
+      const queryNextData = query(
+        colRef,
+        where("month", "==", String(month)),
+        where("year", "==", String(year)),
+        orderBy("createdAt", "desc"),
+        limit(DEFAULT_PER_PAGE),
+        startAt(firstVisible)
+      );
+
+      const dataPaginate = await getDocs(queryNextData);
+
+      dataPaginate.forEach((doc) => {
+        listTransactions.push({
+          ...doc.data(),
+          id: doc.id,
+          category: categories.find((cate) => cate.id == doc.data().category)
+            ?.name,
+        });
+      });
+
+      context.commit("setTransactions", {
+        list: listTransactions,
+        total: snapshot.data().count,
+      });
     },
   },
 };

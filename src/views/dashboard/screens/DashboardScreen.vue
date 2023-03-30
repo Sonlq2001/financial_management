@@ -47,7 +47,7 @@
           <div class="flex items-center">
             <span>{{ currency(totalOfMonthMoney) }}</span>
             <span class="mx-1">/</span>
-            <span class="text-red-600">2.000.000 đ</span>
+            <span class="text-pink-400">{{ currency(totalMoneyLimit) }}</span>
           </div>
         </div>
       </div>
@@ -138,6 +138,42 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- pagination -->
+      <div class="mt-5 flex items-center justify-end" v-if="totalAllData > 1">
+        <button
+          :class="[
+            ' text-white rounded w-[35px] h-[35px] ml-3 border',
+            currentPage === 1 && 'bg-gray-100 dark:bg-gray-300 ',
+          ]"
+          @click="paginationData((currentPage -= 1))"
+          :disabled="currentPage === 1"
+        >
+          <i class="ri-arrow-left-s-line text-gray-500 dark:text-gray-500" />
+        </button>
+        <button
+          :class="[
+            'bg-gray-500 text-white rounded w-[35px] h-[35px] ml-3',
+            currentPage === page && 'bg-primary',
+          ]"
+          @click="handleNextPage(page)"
+          v-for="page in totalAllData"
+          :key="page"
+          :disabled="currentPage === page"
+        >
+          {{ page }}
+        </button>
+        <button
+          :class="[
+            ' text-white rounded w-[35px] h-[35px] ml-3 border',
+            currentPage === totalAllData && 'bg-gray-100',
+          ]"
+          @click="paginationData((currentPage += 1))"
+          :disabled="currentPage === totalAllData"
+        >
+          <i class="ri-arrow-right-s-line text-lg text-gray-500" />
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -145,33 +181,70 @@
 import { onMounted, computed, ref } from "vue";
 import { useStore } from "vuex";
 
+import { useMode } from "@/hooks/useMode";
 import { currency } from "@/utils/convert";
+import { DEFAULT_PER_PAGE } from "@/constants/app.constants";
 
 export default {
   setup() {
     const store = useStore();
-    const loading = ref(false);
+    const loading = ref(true);
+    const currentPage = ref(1);
 
     onMounted(async () => {
-      loading.value = true;
-      await store
-        .dispatch("transaction/getTransactions", new Date().getMonth() + 1)
-        .finally(() => (loading.value = false));
+      Promise.all([
+        store.dispatch("transaction/getTransactions", {
+          month: new Date().getMonth() + 1,
+        }),
+        store.dispatch("transaction/getTotalBill", {
+          month: new Date().getMonth() + 1,
+        }),
+      ]).finally(() => (loading.value = false));
     });
+
+    onMounted(async () => {
+      await store.dispatch("settings/getSettings");
+      useMode();
+    });
+
+    const paginationData = async (page) => {
+      await store.dispatch("transaction/getTransactions", {
+        month: new Date().getMonth() + 1,
+        page,
+      });
+    };
+
+    const handleNextPage = async (page) => {
+      currentPage.value = page;
+      paginationData(page);
+    };
 
     return {
       transactionList: computed(
-        () => store.state.transaction.transactions.list
+        () => store.state.transaction.listTransactions.list
       ),
+      totalAllData: computed(() => {
+        const total = store.state.transaction.listTransactions.total;
+        const totalPage = Math.ceil(total / DEFAULT_PER_PAGE);
+        return totalPage;
+      }),
       totalOfMonthMoney: computed(
-        () => store.state.transaction.transactions.totalMoney
+        () => store.state.transaction.totalBill.totalMoneyOfMonth
       ),
-      totalMoneyToday: computed(() => store.state.transaction.totalMoneyToday),
+      totalMoneyToday: computed(
+        () => store.state.transaction.totalBill.totalMoneyToday
+      ),
       totalMoneyYesterday: computed(
-        () => store.state.transaction.totalMoneyYesterday
+        () => store.state.transaction.totalBill.totalMoneyYesterday
       ),
       loading,
       currency,
+      handleNextPage,
+      currentPage,
+      paginationData,
+      totalMoneyLimit: computed(
+        () => store.state.settings.listSettings.regulated_money
+      ),
     };
   },
 };

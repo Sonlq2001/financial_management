@@ -69,7 +69,7 @@
               class="flex items-center justify-end border-t py-3 dark:border-slate-700"
             >
               <span class="mr-3">Cả năm:</span>
-              <span class="font-semibold text-red-600 text-lg">
+              <span class="font-semibold text-pink-400 text-lg">
                 {{ currency(totalYear) }}
               </span>
             </div>
