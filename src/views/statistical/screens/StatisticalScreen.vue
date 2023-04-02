@@ -13,6 +13,10 @@
         <p class="text-lg font-semibold text-pink-400">Năm tháng</p>
       </div>
     </div>
+
+    <!-- chart -->
+    <chart />
+
     <div
       class="max-w-3xl mx-auto bg-white rounded dark:bg-dark2 dark:text-textDark"
     >
@@ -76,7 +80,7 @@
           </div>
           <div class="px-5 py-4 flex items-center justify-center" v-else>
             <p class="text-gray-500">
-              Bạn không có giao dịch nào trong tháng này !
+              Bạn không có giao dịch nào trong năm này !
             </p>
             <img
               :src="require('../../../assets/images/wow.png')"
@@ -90,12 +94,14 @@
   </div>
 </template>
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 
 import { currency } from "@/utils/convert";
+import Chart from "../components/Chart/Chart.vue";
 
 export default {
+  components: { Chart },
   setup() {
     const store = useStore();
     const loading = ref(true);
@@ -103,6 +109,14 @@ export default {
       { year: 2023, open: false },
       { year: 2024, open: false },
     ]);
+
+    onMounted(() => {
+      store.dispatch(
+        "transaction/getSyntheticTransactions",
+        new Date().getFullYear()
+      );
+    });
+
     const toggleAccordion = (item) => {
       if (!item.open) {
         year.value.forEach((i) => {

@@ -13,8 +13,8 @@ app.use(router);
 
 app.use(VueNumberFormat, { prefix: "US$ ", decimal: ",", thousand: "." });
 
+app.use(store);
+
 app.mount("#app");
 
 registerGlobalComponents(app);
-
-app.use(store);
