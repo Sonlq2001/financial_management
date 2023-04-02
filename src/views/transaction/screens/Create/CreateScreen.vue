@@ -213,7 +213,7 @@ export default {
       currency,
       categories: computed(() => store.state.category?.categories),
       totalMoneyLimit: computed(
-        () => store.state.settings.listSettings.regulated_money
+        () => store.state.settings.listSettings?.regulated_money
       ),
     };
   },
