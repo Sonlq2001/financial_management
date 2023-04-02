@@ -244,7 +244,7 @@ export default {
       currentPage,
       paginationData,
       totalMoneyLimit: computed(
-        () => store.state.settings.listSettings.regulated_money
+        () => store.state.settings.listSettings?.regulated_money
       ),
     };
   },
