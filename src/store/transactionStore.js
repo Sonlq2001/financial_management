@@ -44,6 +44,7 @@ const transactionStore = {
         totalYear: 0,
         list: null,
       },
+      syntheticTransactionsChart: null,
       totalBill: {
         totalMoneyOfMonth: 0,
         totalMoneyToday: 0,
@@ -61,6 +62,9 @@ const transactionStore = {
     },
     setSyntheticTransactions(state, payload) {
       state.syntheticTransactions = payload;
+    },
+    setSyntheticTransactionsChart(state, payload) {
+      state.syntheticTransactionsChart = payload;
     },
   },
   actions: {
@@ -84,11 +88,14 @@ const transactionStore = {
         });
       });
 
+      // total amount today
       const totalMoneyToday = getTotalMoneyDay(
         listTransaction,
         start.getTime(),
         end.getTime()
       );
+
+      // total amount yesterday
       const totalMoneyYesterday = getTotalMoneyDay(
         listTransaction,
         startedYesterday.getTime(),
@@ -126,11 +133,6 @@ const transactionStore = {
 
       const querySnapshot = await getDocs(q);
 
-      let months = [];
-      for (let i = 1; i <= 12; i++) {
-        months.push(i);
-      }
-
       querySnapshot.forEach((doc) => {
         listTransaction.push({
           ...doc.data(),
@@ -139,24 +141,44 @@ const transactionStore = {
       });
 
       const collapseData = listTransaction.map((item) => ({
-        month: months[Number(item.month) - 1],
+        month: item.month,
         total: Number(item.total_bill) || 0,
       }));
 
+      // sum of duplicate months
       const res = Array.from(
         collapseData.reduce(
           (m, { month, total }) => m.set(month, (m.get(month) || 0) + total),
           new Map()
         ),
         ([month, total]) => ({ month, total })
-      );
+      ).sort((a, b) => a.month - b.month);
 
+      // get months lack
+      const numberNum = res.map((item) => Number(item.month));
+      let monthsLack = [];
+      for (let i = 1; i < Math.max(...numberNum); i++) {
+        if (!numberNum.includes(i)) {
+          monthsLack.push(i);
+        }
+      }
+
+      // total amount by month (1 - 12 month)
+      const dataChart = [
+        ...res,
+        ...monthsLack.map((item) => ({ month: item, total: 0 })),
+      ]
+        .sort((a, b) => a.month - b.month)
+        .map((item) => item.total);
+
+      // total amount full year
       const totalYear = res.reduce(
         (totalCount, bill) => (totalCount += Number(bill.total)),
         0
       );
 
       context.commit("setSyntheticTransactions", { list: res, totalYear });
+      context.commit("setSyntheticTransactionsChart", dataChart);
     },
 
     async getTransactions(

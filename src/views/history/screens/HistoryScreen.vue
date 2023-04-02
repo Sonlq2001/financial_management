@@ -138,7 +138,7 @@
               ' text-white rounded w-[35px] h-[35px] ml-3 border',
               currentPage === 1 && 'bg-gray-100',
             ]"
-            @click="paginationData((currentPage -= 1))"
+            @click="handleNextPage((currentPage -= 1))"
             :disabled="currentPage === 1"
           >
             <i class="ri-arrow-left-s-line text-gray-500" />
@@ -160,7 +160,7 @@
               ' text-white rounded w-[35px] h-[35px] ml-3 border',
               currentPage === totalAllData && 'bg-gray-100',
             ]"
-            @click="paginationData((currentPage += 1))"
+            @click="handleNextPage((currentPage += 1))"
             :disabled="currentPage === totalAllData"
           >
             <i class="ri-arrow-right-s-line text-lg text-gray-500" />

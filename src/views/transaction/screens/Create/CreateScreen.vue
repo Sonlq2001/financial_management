@@ -144,6 +144,7 @@ import { useRouter } from "vue-router";
 
 import { useStorage } from "@/hooks/useUploadFile";
 import { currency } from "@/utils/convert";
+import { DEFAULT_MESSAGES } from "@/constants/app.constants";
 
 export default {
   setup() {
@@ -195,8 +196,11 @@ export default {
         };
         await store.dispatch("transaction/createTransaction", data);
         router.push({ name: "Dashboard" });
+        store.dispatch("snackbar/displaySnackbar", {
+          message: DEFAULT_MESSAGES.create_success,
+        });
       } catch (error) {
-        //
+        // todo handle error
       }
     };
 

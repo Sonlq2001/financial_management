@@ -46,7 +46,7 @@
             v-if="cate.id === currentIdCate"
             type="text"
             v-model="categoryEdit.name"
-            class="w-full py-1 px-2 border rounded mr-5"
+            class="w-full py-1 px-2 border rounded mr-5 dark:bg-dark3"
           />
           <p v-else>{{ cate.name }}</p>
 
@@ -87,6 +87,8 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 
+import { DEFAULT_MESSAGES } from "@/constants/app.constants";
+
 export default {
   setup() {
     const store = useStore();
@@ -99,12 +101,26 @@ export default {
     });
 
     const handleSubmitForm = async () => {
-      await store.dispatch("category/createCategory", initCategory.value);
-      initCategory.value.name = "";
+      try {
+        await store.dispatch("category/createCategory", initCategory.value);
+        initCategory.value.name = "";
+        store.dispatch("snackbar/displaySnackbar", {
+          message: DEFAULT_MESSAGES.create_success,
+        });
+      } catch (error) {
+        // todo handle error
+      }
     };
 
     const handleRemoveCategory = async (id) => {
-      await store.dispatch("category/removeCategory", id);
+      try {
+        await store.dispatch("category/removeCategory", id);
+        store.dispatch("snackbar/displaySnackbar", {
+          message: DEFAULT_MESSAGES.remove_success,
+        });
+      } catch (error) {
+        // todo handle error
+      }
     };
 
     const handleEditCategory = (currentCate) => {
@@ -121,11 +137,18 @@ export default {
     };
 
     const handleUpdateCategory = async (id) => {
-      await store.dispatch("category/updateCategory", {
-        name: categoryEdit.value.name,
-        id,
-      });
-      handleCancelEditCategory();
+      try {
+        await store.dispatch("category/updateCategory", {
+          name: categoryEdit.value.name,
+          id,
+        });
+        store.dispatch("snackbar/displaySnackbar", {
+          message: DEFAULT_MESSAGES.update_success,
+        });
+        handleCancelEditCategory();
+      } catch (error) {
+        // todo handle error
+      }
     };
 
     return {
