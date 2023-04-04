@@ -105,6 +105,7 @@
             <th class="p-3 text-left">Thời gian</th>
             <th class="p-3 text-left">Tổng</th>
             <th class="p-3 text-left">Ghi chú</th>
+            <th class="p-3 text-left">Thao tác</th>
           </tr>
         </thead>
 
@@ -135,6 +136,14 @@
               {{ currency(transaction.total_bill || 0) }}
             </td>
             <td class="p-3">{{ transaction.note }}</td>
+            <td class="p-3">
+              <button
+                class="cursor-pointer px-2 py-1 bg-primary rounded"
+                @click="handleOpenModalConfirm(transaction.id)"
+              >
+                <i class="ri-delete-bin-2-line text-xl text-white" />
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -175,6 +184,36 @@
         </button>
       </div>
     </div>
+
+    <!-- Modal confirm delete transaction -->
+    <modal
+      :open="isShowModal"
+      @onClose="handleCloseModal"
+      :error="true"
+      alignBtn="center"
+      @onSubmit="handleRemoveTransaction"
+    >
+      <div class="text-center">
+        <svg
+          aria-hidden="true"
+          class="mx-auto mb-4 text-gray-400 w-14 h-14 dark:text-gray-200"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+          Bạn có chắc chắn muốn xóa giao dịch này?
+        </h3>
+      </div>
+    </modal>
   </div>
 </template>
 <script>
@@ -184,12 +223,17 @@ import { useStore } from "vuex";
 import { useMode } from "@/hooks/useMode";
 import { currency } from "@/utils/convert";
 import { DEFAULT_PER_PAGE } from "@/constants/app.constants";
+import Modal from "@/components/Modal/Modal.vue";
+import { DEFAULT_MESSAGES } from "@/constants/app.constants";
 
 export default {
+  components: { Modal },
   setup() {
     const store = useStore();
     const loading = ref(true);
     const currentPage = ref(1);
+    const isShowModal = ref(false);
+    const idTransaction = ref(null);
 
     const currentMonth = new Date().getMonth() + 1;
     onMounted(async () => {
@@ -220,6 +264,33 @@ export default {
       paginationData(page);
     };
 
+    const handleOpenModalConfirm = (id) => {
+      isShowModal.value = true;
+      idTransaction.value = id;
+    };
+
+    const handleCloseModal = () => {
+      isShowModal.value = false;
+    };
+
+    const handleRemoveTransaction = async () => {
+      try {
+        await store.dispatch(
+          "transaction/removeTransaction",
+          idTransaction.value
+        );
+        await store.dispatch("transaction/getTotalBill", {
+          month: currentMonth,
+        });
+        handleCloseModal();
+        store.dispatch("snackbar/displaySnackbar", {
+          message: DEFAULT_MESSAGES.remove_success,
+        });
+      } catch (error) {
+        // todo handle error
+      }
+    };
+
     return {
       transactionList: computed(
         () => store.state.transaction.listTransactions.list
@@ -246,6 +317,10 @@ export default {
       totalMoneyLimit: computed(
         () => store.state.settings.listSettings?.regulated_money
       ),
+      isShowModal,
+      handleOpenModalConfirm,
+      handleCloseModal,
+      handleRemoveTransaction,
     };
   },
 };

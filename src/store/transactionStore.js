@@ -8,6 +8,8 @@ import {
   getCountFromServer,
   limit,
   startAt,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 
 import { db } from "../configs/firebase";
@@ -225,6 +227,14 @@ const transactionStore = {
       context.commit("setTransactions", {
         list: listTransactions,
         total: snapshot.data().count,
+      });
+    },
+
+    async removeTransaction(context, id) {
+      await deleteDoc(doc(db, "transactions", id));
+      context.commit("setTransactions", {
+        list: context.state.listTransactions.list.filter((tr) => tr.id !== id),
+        total: context.state.listTransactions.total - 1,
       });
     },
   },
