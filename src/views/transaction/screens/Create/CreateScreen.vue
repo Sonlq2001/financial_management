@@ -124,8 +124,12 @@
       </div>
 
       <button
-        class="flex ml-auto rounded mt-5 px-4 py-2 bg-primary text-white items-center"
+        :class="[
+          'flex ml-auto rounded mt-5 px-4 py-2 bg-primary text-white items-center',
+          loading ? 'bg-gray-400' : 'hover:bg-primaryHover',
+        ]"
         type="submit"
+        :disabled="loading"
       >
         Tạo
         <img
@@ -162,6 +166,7 @@ export default {
       createdAt: new Date().getTime(),
     });
     const previewImage = ref(null);
+    const loading = ref(false);
     const router = useRouter();
     const { uploadFile, url } = useStorage("transactions");
 
@@ -187,6 +192,7 @@ export default {
 
     const handleSubmitForm = async () => {
       try {
+        loading.value = true;
         await uploadFile(initTransaction.value.description_photo);
         const data = {
           ...initTransaction.value,
@@ -195,6 +201,7 @@ export default {
           description_photo: url.value,
         };
         await store.dispatch("transaction/createTransaction", data);
+        loading.value = false;
         router.push({ name: "Dashboard" });
         store.dispatch("snackbar/displaySnackbar", {
           message: DEFAULT_MESSAGES.create_success,
@@ -215,6 +222,7 @@ export default {
       totalMoneyLimit: computed(
         () => store.state.settings.listSettings?.regulated_money
       ),
+      loading,
     };
   },
 };
