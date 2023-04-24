@@ -17,41 +17,50 @@
     <div
       class="mt-10 max-w-3xl mx-auto rounded bg-white px-10 py-5 dark:bg-dark2 dark:text-textDark"
     >
-      <form action="" @submit.prevent="handleSubmitForm">
+      <Form
+        @submit="handleSubmitForm"
+        :validation-schema="schema"
+        :initial-values="initCategory"
+      >
         <label for="" class="mb-1 block">Tên danh mục</label>
-        <div class="flex items-center">
-          <input
-            type="text"
-            placeholder="Vd: Khách quan"
-            class="border rounded w-full py-2 px-3 dark:bg-dark3 focus:outline-none"
-            v-model="initCategory.name"
+        <div class="flex leading-none">
+          <text-field
+            name="name"
+            placeholder="Vd: Cá nhân"
+            class="w-full"
+            :useDarkMode="true"
           />
           <button
-            class="rounded px-4 py-3 bg-primary h-[42px] flex items-center"
+            class="rounded px-4 py-3 bg-primary h-[45px] flex items-center"
           >
             <i class="ri-add-circle-line text-2xl text-white"></i>
           </button>
         </div>
-      </form>
+      </Form>
       <p class="mt-7 text-sm text-gray-500 mb-2">
         Tổng: {{ listCategories?.length }} / 5
       </p>
       <div class="border-t dark:border-slate-700">
         <div
-          class="flex items-center justify-between py-3"
+          class="flex justify-between py-3"
           v-for="cate in listCategories"
           :key="cate.id"
         >
-          <input
-            v-if="cate.id === currentIdCate"
-            type="text"
-            v-model="categoryEdit.name"
-            class="w-full py-1 px-2 border rounded mr-5 dark:bg-dark3"
-          />
+          <div v-if="cate.id === currentIdCate" class="w-full">
+            <input
+              type="text"
+              v-model="categoryEdit.name"
+              class="w-full py-1 px-2 border rounded mr-5 dark:bg-dark3"
+            />
+            <p v-if="errorStr" class="text-sm text-red-500">{{ errorStr }}</p>
+          </div>
           <p v-else>{{ cate.name }}</p>
 
           <!-- btn save or cancel -->
-          <div class="flex items-center" v-if="cate.id === currentIdCate">
+          <div
+            class="flex items-start pt-[3px]"
+            v-if="cate.id === currentIdCate"
+          >
             <button
               class="rounded px-2 py-1 text-sm text-white mr-2 bg-primary"
               @click="handleUpdateCategory(cate.id)"
@@ -86,24 +95,29 @@
 <script>
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
+import { Form } from "vee-validate";
 
+import TextField from "@/components/Form/TextField/TextField.vue";
 import { DEFAULT_MESSAGES } from "@/constants/app.constants";
+import { schema } from "../helpers/category.helpers";
 
 export default {
+  components: { Form, TextField },
   setup() {
     const store = useStore();
-    const initCategory = ref({ name: "", createdAt: new Date().getTime() });
+    const initCategory = { name: "", createdAt: new Date().getTime() };
     const categoryEdit = ref({ name: "" });
     const currentIdCate = ref(null);
+    const errorStr = ref("");
 
     onMounted(async () => {
       await store.dispatch("category/getCategories");
     });
 
-    const handleSubmitForm = async () => {
+    const handleSubmitForm = async (values, { resetForm }) => {
       try {
-        await store.dispatch("category/createCategory", initCategory.value);
-        initCategory.value.name = "";
+        await store.dispatch("category/createCategory", values);
+        resetForm({ values: initCategory });
         store.dispatch("snackbar/displaySnackbar", {
           message: DEFAULT_MESSAGES.create_success,
         });
@@ -137,6 +151,10 @@ export default {
     };
 
     const handleUpdateCategory = async (id) => {
+      if (!categoryEdit.value.name) {
+        errorStr.value = "Không được để trống !";
+        return;
+      }
       try {
         await store.dispatch("category/updateCategory", {
           name: categoryEdit.value.name,
@@ -161,6 +179,8 @@ export default {
       handleCancelEditCategory,
       handleUpdateCategory,
       categoryEdit,
+      schema,
+      errorStr,
     };
   },
 };

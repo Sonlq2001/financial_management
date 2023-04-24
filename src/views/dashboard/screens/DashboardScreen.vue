@@ -126,7 +126,7 @@
             </td>
             <td class="p-3">
               <button
-                class="bg-red-300 px-2 py-1 text-sm text-white rounded-3xl"
+                class="bg-red-300 px-2 py-1 text-sm text-white rounded-3xl whitespace-nowrap"
               >
                 {{ transaction.category }}
               </button>

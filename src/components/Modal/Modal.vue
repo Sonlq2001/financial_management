@@ -19,7 +19,7 @@
               border && 'border-b border-gray-200 dark:border-gray-600 pb-2',
             ]"
           >
-            <h2 v-if="title" class="text-gray-400 text-xl">{{ title }}</h2>
+            <h2 v-if="title" class="text-gray-400 text-lg">{{ title }}</h2>
             <button
               type="button"
               class="flex ml-auto text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 items-center dark:hover:bg-gray-800 dark:hover:text-white"
@@ -53,6 +53,7 @@
               border &&
                 'border-t border-gray-200 rounded-b dark:border-gray-600 pt-6',
             ]"
+            v-if="!hideFooter"
           >
             <button
               data-modal-hide="staticModal"
@@ -89,6 +90,7 @@ export default {
     border: Boolean,
     error: Boolean,
     alignBtn: String,
+    hideFooter: Boolean,
   },
   setup(_, { emit }) {
     const handleClose = () => emit("onClose");
