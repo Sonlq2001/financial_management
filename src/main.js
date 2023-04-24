@@ -3,6 +3,7 @@ import VueNumberFormat from "vue-number-format";
 
 import App from "./App.vue";
 import "./assets/styles/index.css";
+import "./assets/styles/global.css";
 import router from "./routes/app.routes";
 import { registerGlobalComponents } from "./utils/registerLayout.js";
 import store from "./store/appStore";

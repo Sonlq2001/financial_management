@@ -1,0 +1,5 @@
+.error input,
+.error textarea {
+  border: 1px solid;
+  @apply border-red-500 focus:outline-none;
+}

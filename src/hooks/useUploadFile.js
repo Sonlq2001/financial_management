@@ -16,7 +16,7 @@ export function useStorage(name) {
   async function uploadFile(file) {
     error.value = null;
 
-    filePath.value = `${name}/${file.name}`;
+    filePath.value = `${name}/${file.name}${new Date().getTime()}`;
 
     const fileRef = refFirebase(storage, filePath.value);
 
